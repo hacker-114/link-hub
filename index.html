@@ -8,15 +8,17 @@
   <!-- External Styles -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+  <!-- jQuery (optional) -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"
           integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
           crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- 🌌 Starfield Background -->
+  <!-- Starfield Background -->
   <div id="starfield"></div>
 
-  <!-- 🧠 Title Section -->
+  <!-- Title Section -->
   <h1 id="title">📁 Chromebook Utilities</h1>
   <h3>This collection was created by S-PScripts! Check out the source 
     <a href="https://github.com/S-PScripts/chromebook-utilities" target="_blank">here</a>
@@ -25,26 +27,29 @@
     <a href="chromebook-utilities-sept2025.zip">repo</a>
   </h4>
 
-  <!-- 🔍 Search Section -->
+  <!-- Search Section -->
   <div id="searchdiv">
     <input type="text" name="search" id="search" placeholder="Search files">
     <span class="material-symbols-outlined">search</span>
   </div>
 
-  <!-- 📂 File Tree Section -->
+  <!-- Error / status banner -->
+  <div id="status" style="display:none;"></div>
+
+  <!-- File Tree Section -->
   <div id="file-tree">Loading...</div>
 
-  <!-- 💬 Feedback Button -->
+  <!-- Feedback Button -->
   <div id="feedback-button">
     <a href="/form/index.html" target="_blank">Feedback</a>
   </div>
 
-  <!-- 🔙 Back Button -->
+  <!-- Back Button -->
   <button id="back" onclick="window.open('/ppfn-static/','_self')">
     <span class="material-symbols-outlined">arrow_back</span>
   </button>
 
-  <!-- 🌠 Starfield Script -->
+  <!-- Starfield Script -->
   <script>
     const starCount = 500;
     const starfield = document.getElementById('starfield');
@@ -63,24 +68,55 @@
     }
   </script>
 
-  <!-- 📡 GitHub File Tree Script with Fallback -->
+  <!-- GitHub File Tree Script with robust handling and link modes -->
   <script>
-    const user = "S-PScripts";
-    const repo = "chromebook-utilities";
+    const user   = "S-PScripts";
+    const repo   = "chromebook-utilities";
     const branch = "main";
     const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
+    // Choose how links should resolve:
+    // 'origin'  -> links to files hosted on your current site (same origin)
+    // 'raw'     -> links to raw GitHub content (downloads / raw text)
+    // 'blob'    -> links to GitHub UI blobs (view on github.com)
+    const linkMode = 'origin';
+
+    function buildLink(path) {
+      if (linkMode === 'origin') {
+        // Serve from your current site (assumes you mirrored files here)
+        // e.g., https://yoursite/Alternatives/Fandom Alternative Links.txt
+        return `${window.location.origin}/${path}`;
+      }
+      if (linkMode === 'raw') {
+        // Raw file content from GitHub (best for direct downloads)
+        return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+      }
+      // GitHub blob viewer (nice UI, not raw)
+      return `https://github.com/${user}/${repo}/blob/${branch}/${path}`;
+    }
+
+    function showStatus(message) {
+      const status = document.getElementById('status');
+      status.style.display = 'block';
+      status.textContent = message;
+      // optional: you can style #status in your style.css for glow, etc.
+    }
+
     async function fetchTree(path = "") {
-      const url = apiBase + path;
+      const url = apiBase + (path ? encodeURIComponent(path).replace(/%2F/g, '/') : "");
       try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+        // Handle rate limits, private repo, or missing path
+        if (!response.ok) {
+          showStatus(`Could not load GitHub contents (status ${response.status}). Showing local fallback.`);
+          return buildFallbackTree();
+        }
 
         const items = await response.json();
         const ul = document.createElement("ul");
-        const itemList = Array.isArray(items) ? items : [items];
+        const list = Array.isArray(items) ? items : [items];
 
-        for (const item of itemList) {
+        for (const item of list) {
           const li = document.createElement("li");
 
           if (item.type === "dir") {
@@ -88,25 +124,33 @@
             const subTree = await fetchTree(item.path);
             li.appendChild(subTree);
           } else if (item.type === "file") {
-            const rawURL = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${item.path}`;
-            li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+            const href = buildLink(item.path);
+            li.innerHTML = `<a href="${href}" target="_blank">📄 ${item.name}</a>`;
           }
 
           ul.appendChild(li);
         }
 
+        // If an empty directory, still show something
+        if (!ul.childNodes.length) {
+          const empty = document.createElement('li');
+          empty.textContent = "(empty)";
+          ul.appendChild(empty);
+        }
+
         return ul;
       } catch (err) {
-        console.warn("GitHub fetch failed, loading fallback tree.");
+        showStatus("Network error loading GitHub contents. Showing local fallback.");
         return buildFallbackTree();
       }
     }
 
+    // Local fallback tree (edit paths to match your deployment)
     function buildFallbackTree() {
       const ul = document.createElement("ul");
 
       const file1 = document.createElement("li");
-      file1.innerHTML = `<a href="404.html" target="_blank">📄 404.html</a>`;
+      file1.innerHTML = `<a href="${buildLink('404.html')}" target="_blank">📄 404.html</a>`;
       ul.appendChild(file1);
 
       const altFolder = document.createElement("li");
@@ -114,11 +158,11 @@
       const altList = document.createElement("ul");
 
       const alt1 = document.createElement("li");
-      alt1.innerHTML = `<a href="Fandom Alternative Links.txt" target="_blank">📄 Fandom Alternative Links.txt</a>`;
+      alt1.innerHTML = `<a href="${buildLink('Alternatives/Fandom Alternative Links.txt')}" target="_blank">📄 Fandom Alternative Links.txt</a>`;
       const alt2 = document.createElement("li");
-      alt2.innerHTML = `<a href="Github Alternative Links.txt" target="_blank">📄 Github Alternative Links.txt</a>`;
+      alt2.innerHTML = `<a href="${buildLink('Alternatives/Github Alternative Links.txt')}" target="_blank">📄 Github Alternative Links.txt</a>`;
       const alt3 = document.createElement("li");
-      alt3.innerHTML = `<a href="Google Workspace Alt Links.txt" target="_blank">📄 Google Workspace Alt Links.txt</a>`;
+      alt3.innerHTML = `<a href="${buildLink('Alternatives/Google Workspace Alt Links.txt')}" target="_blank">📄 Google Workspace Alt Links.txt</a>`;
 
       altList.appendChild(alt1);
       altList.appendChild(alt2);
@@ -129,6 +173,7 @@
       return ul;
     }
 
+    // Render
     fetchTree().then(tree => {
       const container = document.getElementById("file-tree");
       container.innerHTML = "";
