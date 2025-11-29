@@ -1,21 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chromebook Utilities</title>
-  <style>
-    body { font-family: sans-serif; }
-    ul { list-style-type: none; padding-left: 20px; }
-    a { text-decoration: none; color: #0366d6; }
-  </style>
+  <title>Chromebook Utilities Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Material Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"
+          integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+          crossorigin="anonymous"></script>
 </head>
 <body>
-  <h1>📁 Chromebook Utilities</h1>
-  <h3>This collection was created by S-PScripts! Check out the source <a href="https://github.com/S-PScripts/chromebook-utilities">here</a> </h3>
-  <h4>If nothing loads, use the link above or download the <a href="chromebook-utilities-sept2025.zip">repo</a> </h4>
+  <!-- Starfield background -->
+  <div id="starfield"></div>
+
+  <!-- Title -->
+  <h1 id="title">📁 Chromebook Utilities</h1>
+
+  <!-- Repo info -->
+  <h3>This collection was created by S-PScripts! Check out the source 
+    <a href="https://github.com/S-PScripts/chromebook-utilities" target="_blank">here</a>
+  </h3>
+  <h4>If nothing loads, use the link above or download the 
+    <a href="chromebook-utilities-sept2025.zip">repo</a>
+  </h4>
+
+  <!-- Search bar -->
+  <div id="searchdiv">
+    <input type="text" name="search" id="search" placeholder="Search files">
+    <span id="m" class="material-symbols-outlined">search</span>
+  </div>
+
+  <!-- File tree container -->
   <div id="file-tree">Loading...</div>
 
+  <!-- Feedback button -->
+  <div id="feedback-button">
+    <a href="/form/index.html" target="_blank">Feedback</a>
+  </div>
+
+  <!-- Back button -->
+  <button id="back" onclick="window.open('/ppfn-static/','_self')">
+    <span class="material-symbols-outlined">arrow_back</span>
+  </button>
+
   <script>
+    /* Starfield generator */
+    const starCount = 500;
+    const starfield = document.getElementById('starfield');
+    function random(min, max) { return Math.random() * (max - min) + min; }
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      const size = random(0.5, 3);
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.top = `${random(0, window.innerHeight)}px`;
+      star.style.left = `${random(0, window.innerWidth)}px`;
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      star.style.animationDuration = `${random(3, 8)}s`;
+      starfield.appendChild(star);
+    }
+
+    /* GitHub API file tree */
     const user = "S-PScripts";
     const repo = "chromebook-utilities";
     const branch = "main";
@@ -28,19 +81,17 @@
         return `<li>Error loading ${path}</li>`;
       }
       const items = await response.json();
-
       if (!Array.isArray(items)) return "";
 
       const ul = document.createElement("ul");
       for (const item of items) {
         const li = document.createElement("li");
-
         if (item.type === "dir") {
           li.innerHTML = `<strong>📁 ${item.name}</strong>`;
           const subTree = await fetchTree(item.path);
           li.appendChild(subTree);
         } else if (item.type === "file") {
-          const rawURL = `${window.location.origin}/${item.path}`;
+          const rawURL = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${item.path}`;
           li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
         }
         ul.appendChild(li);
