@@ -74,14 +74,20 @@
       const url = apiBase + path;
       const response = await fetch(url);
       if (!response.ok) {
-        return `<li>Error loading ${path}</li>`;
+        const errorLi = document.createElement("li");
+        errorLi.textContent = `Error loading ${path}`;
+        const errorUl = document.createElement("ul");
+        errorUl.appendChild(errorLi);
+        return errorUl;
       }
+
       const items = await response.json();
-      if (!Array.isArray(items)) return "";
+      if (!Array.isArray(items)) return document.createElement("ul");
 
       const ul = document.createElement("ul");
       for (const item of items) {
         const li = document.createElement("li");
+
         if (item.type === "dir") {
           li.innerHTML = `<strong>📁 ${item.name}</strong>`;
           const subTree = await fetchTree(item.path);
@@ -90,8 +96,10 @@
           const rawURL = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${item.path}`;
           li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
         }
+
         ul.appendChild(li);
       }
+
       return ul;
     }
 
