@@ -63,7 +63,7 @@
     }
   </script>
 
-  <!-- 📡 GitHub File Tree Script -->
+  <!-- 📡 GitHub File Tree Script with Fallback -->
   <script>
     const user = "S-PScripts";
     const repo = "chromebook-utilities";
@@ -72,33 +72,59 @@
 
     async function fetchTree(path = "") {
       const url = apiBase + path;
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorLi = document.createElement("li");
-        errorLi.textContent = `Error loading ${path}`;
-        const errorUl = document.createElement("ul");
-        errorUl.appendChild(errorLi);
-        return errorUl;
-      }
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
 
-      const items = await response.json();
-      if (!Array.isArray(items)) return document.createElement("ul");
+        const items = await response.json();
+        const ul = document.createElement("ul");
+        const itemList = Array.isArray(items) ? items : [items];
 
-      const ul = document.createElement("ul");
-      for (const item of items) {
-        const li = document.createElement("li");
+        for (const item of itemList) {
+          const li = document.createElement("li");
 
-        if (item.type === "dir") {
-          li.innerHTML = `<strong>📁 ${item.name}</strong>`;
-          const subTree = await fetchTree(item.path);
-          li.appendChild(subTree);
-        } else if (item.type === "file") {
-          const rawURL = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${item.path}`;
-          li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+          if (item.type === "dir") {
+            li.innerHTML = `<strong>📁 ${item.name}</strong>`;
+            const subTree = await fetchTree(item.path);
+            li.appendChild(subTree);
+          } else if (item.type === "file") {
+            const rawURL = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${item.path}`;
+            li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+          }
+
+          ul.appendChild(li);
         }
 
-        ul.appendChild(li);
+        return ul;
+      } catch (err) {
+        console.warn("GitHub fetch failed, loading fallback tree.");
+        return buildFallbackTree();
       }
+    }
+
+    function buildFallbackTree() {
+      const ul = document.createElement("ul");
+
+      const file1 = document.createElement("li");
+      file1.innerHTML = `<a href="404.html" target="_blank">📄 404.html</a>`;
+      ul.appendChild(file1);
+
+      const altFolder = document.createElement("li");
+      altFolder.innerHTML = `<strong>📁 Alternatives</strong>`;
+      const altList = document.createElement("ul");
+
+      const alt1 = document.createElement("li");
+      alt1.innerHTML = `<a href="Fandom Alternative Links.txt" target="_blank">📄 Fandom Alternative Links.txt</a>`;
+      const alt2 = document.createElement("li");
+      alt2.innerHTML = `<a href="Github Alternative Links.txt" target="_blank">📄 Github Alternative Links.txt</a>`;
+      const alt3 = document.createElement("li");
+      alt3.innerHTML = `<a href="Google Workspace Alt Links.txt" target="_blank">📄 Google Workspace Alt Links.txt</a>`;
+
+      altList.appendChild(alt1);
+      altList.appendChild(alt2);
+      altList.appendChild(alt3);
+      altFolder.appendChild(altList);
+      ul.appendChild(altFolder);
 
       return ul;
     }
