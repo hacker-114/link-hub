@@ -5,25 +5,19 @@
   <title>Chromebook Utilities Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- External CSS -->
+  <!-- External Styles -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Google Material Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"
           integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
           crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- Starfield background -->
+  <!-- 🌌 Starfield Background -->
   <div id="starfield"></div>
 
-  <!-- Title -->
+  <!-- 🧠 Title Section -->
   <h1 id="title">📁 Chromebook Utilities</h1>
-
-  <!-- Repo info -->
   <h3>This collection was created by S-PScripts! Check out the source 
     <a href="https://github.com/S-PScripts/chromebook-utilities" target="_blank">here</a>
   </h3>
@@ -31,27 +25,27 @@
     <a href="chromebook-utilities-sept2025.zip">repo</a>
   </h4>
 
-  <!-- Search bar -->
+  <!-- 🔍 Search Section -->
   <div id="searchdiv">
     <input type="text" name="search" id="search" placeholder="Search files">
-    <span id="m" class="material-symbols-outlined">search</span>
+    <span class="material-symbols-outlined">search</span>
   </div>
 
-  <!-- File tree container -->
+  <!-- 📂 File Tree Section -->
   <div id="file-tree">Loading...</div>
 
-  <!-- Feedback button -->
+  <!-- 💬 Feedback Button -->
   <div id="feedback-button">
     <a href="/form/index.html" target="_blank">Feedback</a>
   </div>
 
-  <!-- Back button -->
+  <!-- 🔙 Back Button -->
   <button id="back" onclick="window.open('/ppfn-static/','_self')">
     <span class="material-symbols-outlined">arrow_back</span>
   </button>
 
+  <!-- 🌠 Starfield Script -->
   <script>
-    /* Starfield generator */
     const starCount = 500;
     const starfield = document.getElementById('starfield');
     function random(min, max) { return Math.random() * (max - min) + min; }
@@ -67,8 +61,10 @@
       star.style.animationDuration = `${random(3, 8)}s`;
       starfield.appendChild(star);
     }
+  </script>
 
-    /* GitHub API file tree */
+  <!-- 📡 GitHub File Tree Script -->
+  <script>
     const user = "S-PScripts";
     const repo = "chromebook-utilities";
     const branch = "main";
