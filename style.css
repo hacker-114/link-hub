@@ -1,37 +1,198 @@
+/* Root theme variables */
+:root {
+  --back: rgba(11, 11, 11, 1);
+  --font: #ffffff;
+  --tile: rgba(15, 15, 15, 1);
+  --res: #e6e6e6;
+  --themeicon: #000000;
+  --grid: rgba(28, 28, 28, 1);
+  --accent: #00ffff; /* neon cyan accent */
+  --accent2: #ff00ff; /* neon magenta accent */
+  --shadow: rgba(0, 255, 255, 0.4);
+}
+
 body {
+  margin: 0;
+  padding: 0;
   font-family: "Noto Sans", "IBM Plex Sans", Verdana, sans-serif;
+  background-color: var(--back);
+  color: var(--font);
+  overflow-x: hidden;
 }
 
-blockquote {
-  margin: 18px;
-  padding: 18px;
-  background-color: #000064;
+/* Starfield background */
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--back);
 }
 
-.date {
-  font-style: italic;
-  font-size: 120%;
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle infinite alternate;
 }
 
-#toc {
-  margin: 8px;
-  padding: 8px;
-  background-color: #000064;
-  width: fit-content
+@keyframes twinkle {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
 }
 
-.tocUl {
-  margin-left: 20px;
-  list-style-type: none;
+/* Title */
+#title {
+  text-align: center;
+  font-size: 3rem;
+  margin: 20px 0;
+  text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2);
 }
 
-table {
-  border-collapse: collapse;
-  background-color: #000000;
-}
-
-td, th {
-  border: 1px solid #ffffff;
-  text-align: left;
+/* Search bar */
+#searchdiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  width: 60%;
+  background: var(--tile);
+  border-radius: 8px;
   padding: 10px;
+  box-shadow: 0 0 10px var(--shadow);
+}
+
+#search {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--font);
+  font-size: 1rem;
+}
+
+#search:focus {
+  outline: none;
+}
+
+#searchdiv .material-symbols-outlined {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* Tiles */
+#tilecontainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.tile {
+  background: var(--tile);
+  border-radius: 10px;
+  text-align: center;
+  padding: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px var(--shadow);
+}
+
+.tile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+.tile img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.tile p {
+  margin-top: 10px;
+  font-weight: bold;
+  color: var(--font);
+}
+
+/* Switch toggle */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Feedback button */
+#feedback-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+#feedback-button a {
+  background: var(--accent2);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 0 10px var(--accent2);
+  transition: background 0.3s ease;
+}
+
+#feedback-button a:hover {
+  background: var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+}
+
+/* Back button */
+#back {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 2rem;
+  cursor: pointer;
 }
