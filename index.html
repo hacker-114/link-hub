@@ -9,10 +9,8 @@
 <body>
   <header>
     <h1>Gaming Link Hub</h1>
-    <h3>This collection was created by S-PScripts and Hacker114 
-    </h3>
-    <h4>Some links may be blocked as the link hub was made for a separate school district! 
-    </h4>
+    <h3>This collection was created by S-PScripts and Hacker114</h3>
+    <h4>Some links may be blocked as the link hub was made for a separate school district!</h4>
   </header>
 
   <section id="search-section">
@@ -29,10 +27,23 @@
     const branch = "main";
     const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
+    // Toggle: true = use GitHub Pages URLs, false = use raw.githubusercontent URLs
+    const usePages = true;
+
+    function makeURL(path) {
+      return usePages
+        ? `${window.location.origin}/${repo}/${path}`
+        : `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+    }
+
     async function fetchTree(path = "") {
       const url = apiBase + path;
       const response = await fetch(url);
-      if (!response.ok) return `<li>Error loading ${path}</li>`;
+      if (!response.ok) {
+        const li = document.createElement("li");
+        li.textContent = `Error loading ${path}`;
+        return li;
+      }
       const items = await response.json();
       if (!Array.isArray(items)) return "";
 
@@ -47,7 +58,7 @@
           const subTree = await fetchTree(item.path);
           li.appendChild(subTree);
         } else if (item.type === "file") {
-          const rawURL = `${window.location.origin}/${item.path}`;
+          const rawURL = makeURL(item.path);
           li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
         }
         ul.appendChild(li);
