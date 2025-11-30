@@ -58,7 +58,7 @@
       li.classList.add("tree-item");
       li.setAttribute("data-name", name.toLowerCase());
       const label = document.createElement("strong");
-      label.textContent = `${name}`;
+      label.textContent = `[Category] ${name}`;
       li.appendChild(label);
       return li;
     }
@@ -70,7 +70,7 @@
       const link = document.createElement("a");
       link.href = makeURL(path);
       link.target = "_blank";
-      link.textContent = `${name}`;
+      link.textContent = `[Link] ${name}`;
       li.appendChild(link);
       return li;
     }
