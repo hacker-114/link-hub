@@ -1,1 +1,74 @@
-<!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Chromebook Utilities</title> <style> body { font-family: sans-serif; } ul { list-style-type: none; padding-left: 20px; } a { text-decoration: none; color: #0366d6; } </style> </head> <body> <h1>📁 Chromebook Utilities</h1> <h3>This collection was created by S-PScripts! Check out the source <a href="https://github.com/S-PScripts/chromebook-utilities">here</a> </h3> <h4>If nothing loads, use the link above or download the <a href="chromebook-utilities-sept2025.zip">repo</a> </h4> <div id="file-tree">Loading...</div> <script> const user = "S-PScripts"; const repo = "chromebook-utilities"; const branch = "main"; const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`; async function fetchTree(path = "") { const url = apiBase + path; const response = await fetch(url); if (!response.ok) { return `<li>Error loading ${path}</li>`; } const items = await response.json(); if (!Array.isArray(items)) return ""; const ul = document.createElement("ul"); for (const item of items) { const li = document.createElement("li"); if (item.type === "dir") { li.innerHTML = `<strong>📁 ${item.name}</strong>`; const subTree = await fetchTree(item.path); li.appendChild(subTree); } else if (item.type === "file") { const rawURL = `${window.location.origin}/${item.path}`; li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`; } ul.appendChild(li); } return ul; } fetchTree().then(tree => { const container = document.getElementById("file-tree"); container.innerHTML = ""; container.appendChild(tree); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chromebook Utilities</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📁 Chromebook Utilities</h1>
+    <h3>This collection was created by S-PScripts! Check out the source 
+      <a href="https://github.com/S-PScripts/chromebook-utilities" target="_blank">here</a>
+    </h3>
+    <h4>If nothing loads, use the link above or download the 
+      <a href="chromebook-utilities-sept2025.zip">repo</a>
+    </h4>
+  </header>
+
+  <section id="search-section">
+    <input type="text" id="search-input" placeholder="🔍 Search files or folders..." />
+  </section>
+
+  <section id="file-tree-section">
+    <div id="file-tree">Loading...</div>
+  </section>
+
+  <script>
+    const user = "S-PScripts";
+    const repo = "chromebook-utilities";
+    const branch = "main";
+    const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
+
+    async function fetchTree(path = "") {
+      const url = apiBase + path;
+      const response = await fetch(url);
+      if (!response.ok) return `<li>Error loading ${path}</li>`;
+      const items = await response.json();
+      if (!Array.isArray(items)) return "";
+
+      const ul = document.createElement("ul");
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.classList.add("tree-item");
+        li.setAttribute("data-name", item.name.toLowerCase());
+
+        if (item.type === "dir") {
+          li.innerHTML = `<strong>📁 ${item.name}</strong>`;
+          const subTree = await fetchTree(item.path);
+          li.appendChild(subTree);
+        } else if (item.type === "file") {
+          const rawURL = `${window.location.origin}/${item.path}`;
+          li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+        }
+        ul.appendChild(li);
+      }
+      return ul;
+    }
+
+    fetchTree().then(tree => {
+      const container = document.getElementById("file-tree");
+      container.innerHTML = "";
+      container.appendChild(tree);
+    });
+
+    document.getElementById("search-input").addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      document.querySelectorAll(".tree-item").forEach(item => {
+        const name = item.getAttribute("data-name");
+        item.style.display = name.includes(query) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>
