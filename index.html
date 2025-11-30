@@ -27,43 +27,63 @@
     const branch = "main";
     const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-    // Toggle: true = use GitHub Pages URLs, false = use raw.githubusercontent URLs
+    // Toggle: false = use raw.githubusercontent, true = use Pages auto-detect
     const usePages = true;
 
     function makeURL(path) {
-      return usePages
-        ? `${window.location.origin}/${repo}/${path}`
-        : `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+      if (!usePages) {
+        return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+      }
+
+      // Detect if current URL already includes the repo name
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+
+      if (pathname.includes(`/${repo}/`)) {
+        // Site is served from /repo/, include repo in URL
+        return `${origin}/${repo}/${path}`;
+      } else {
+        // Site is served from root, just append path
+        return `${origin}/${path}`;
+      }
     }
 
     async function fetchTree(path = "") {
       const url = apiBase + path;
-      const response = await fetch(url);
-      if (!response.ok) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.error("Fetch failed:", response.status, response.statusText, url);
+          const li = document.createElement("li");
+          li.textContent = `Error loading ${path}`;
+          return li;
+        }
+        const items = await response.json();
+        if (!Array.isArray(items)) return "";
+
+        const ul = document.createElement("ul");
+        for (const item of items) {
+          const li = document.createElement("li");
+          li.classList.add("tree-item");
+          li.setAttribute("data-name", item.name.toLowerCase());
+
+          if (item.type === "dir") {
+            li.innerHTML = `<strong>📁 ${item.name}</strong>`;
+            const subTree = await fetchTree(item.path);
+            li.appendChild(subTree);
+          } else if (item.type === "file") {
+            const rawURL = makeURL(item.path);
+            li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+          }
+          ul.appendChild(li);
+        }
+        return ul;
+      } catch (err) {
+        console.error("Exception fetching:", err);
         const li = document.createElement("li");
         li.textContent = `Error loading ${path}`;
         return li;
       }
-      const items = await response.json();
-      if (!Array.isArray(items)) return "";
-
-      const ul = document.createElement("ul");
-      for (const item of items) {
-        const li = document.createElement("li");
-        li.classList.add("tree-item");
-        li.setAttribute("data-name", item.name.toLowerCase());
-
-        if (item.type === "dir") {
-          li.innerHTML = `<strong>📁 ${item.name}</strong>`;
-          const subTree = await fetchTree(item.path);
-          li.appendChild(subTree);
-        } else if (item.type === "file") {
-          const rawURL = makeURL(item.path);
-          li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
-        }
-        ul.appendChild(li);
-      }
-      return ul;
     }
 
     fetchTree().then(tree => {
