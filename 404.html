@@ -1,128 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Technical Difficulties</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
-
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-
-    body, html {
-      height:100%;
-      background:#0f172a; /* Deep dark blue */
-      color:#ffffff;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      overflow:hidden;
-    }
-
-    .container {
-      text-align:center;
-      position:relative;
-      z-index:2;
-    }
-
-    /* === BIGGER LOGO === */
-    .logo {
-      width: 200px;           /* ← Bigger logo */
-      height: auto;
-      margin-bottom: 2.2rem;  /* More space below */
-      filter: brightness(0) invert(1); /* Forces white */
-    }
-
-    h1 {
-      font-family: 'Bungee', cursive;
-      font-size: 3.8rem;
-      font-weight: 400;
-      margin-bottom: 0.8rem;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-
-    /* Spotlight beam */
-    .spotlight {
-      position:absolute;
-      top:0;
-      left:-60%;
-      width:120%;
-      height:100%;
-      background:linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255,255,255,0.4) 48%,
-        rgba(255,255,255,0.6) 50%,
-        rgba(255,255,255,0.4) 52%,
-        transparent 100%
-      );
-      pointer-events:none;
-      animation: sweep 5s ease-in-out infinite;
-      z-index:1;
-    }
-
-    @keyframes sweep {
-      0%   { left:-60%; }
-      50%  { left:100%; }
-      100% { left:-60%; }
-    }
-
-    /* Messages */
-    .slider {
-      position:relative;
-      height:2rem;
-      overflow:hidden;
-      margin-top:0.5rem;
-    }
-
-    .slide {
-      position:absolute;
-      top:0;
-      left:100%;
-      width:100%;
-      font-size:1.2rem;
-      font-weight:500;
-      white-space:nowrap;
-      opacity:0;
-      transform:translateX(20px);
-      animation: slideIn 9s infinite;
-    }
-
-    .slide:nth-child(1) { animation-delay:0s; }
-    .slide:nth-child(2) { animation-delay:3s; }
-    .slide:nth-child(3) { animation-delay:6s; }
-
-    @keyframes slideIn {
-      0%   { opacity:0; transform:translateX(20px); left:100%; }
-      10%, 33% { opacity:1; transform:translateX(0); left:0; }
-      36%  { opacity:0; transform:translateX(-20px); left:0; }
-      100% { opacity:0; transform:translateX(-20px); left:0; }
-    }
-  </style>
+  <title>404 - Page Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="/cloak.png" />
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-
-  <div class="spotlight"></div>
-
-  <div class="container">
-    
-    <!-- === BIG LOGO: REPLACE THIS SRC === -->
-    <img src="css/logo.png" alt="Your Logo" class="logo">
-    <!-- ↑ Paste your real logo URL here ↑ -->
-
-    <h1>TECHNICAL DIFFICULTIES</h1>
-
-    <div class="slider">
-      <div class="slide">Please stand by… Page has been blocked!</div>
-      <div class="slide">Were working on getting this fixed!.</div>
-      <div class="slide">Back in a flash!</div>
+  <div class="error-container">
+    <div class="error-message">
+      <h1>Oops! <span>404</span></h1>
+      <h2>This page does not exist.</h2>
+      <p>We couldn't find the page you're looking for. It might have been moved or deleted.</p>
+      <a href="/" class="home-button">Go Back to Homepage</a>
     </div>
   </div>
-
+  <script src="/script.js"></script>
 </body>
 </html>
