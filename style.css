@@ -1,1 +1,123 @@
-body { font-family: "Noto Sans", "IBM Plex Sans", Verdana, sans-serif; } blockquote { margin: 18px; padding: 18px; background-color: #000064; } .date { font-style: italic; font-size: 120%; } #toc { margin: 8px; padding: 8px; background-color: #000064; width: fit-content } .tocUl { margin-left: 20px; list-style-type: none; } table { border-collapse: collapse; background-color: #000000; } td, th { border: 1px solid #ffffff; text-align: left; padding: 10px; }
+/* === Base Reset & Typography === */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans", "IBM Plex Sans", Verdana, sans-serif;
+  background: radial-gradient(circle at top, #0a0a23, #000010);
+  color: #e0e0ff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === Header Section === */
+header {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(to right, #1a0033, #000064);
+  box-shadow: 0 0 20px #4f00ff;
+  border-bottom: 2px solid #4f00ff;
+}
+
+header h1 {
+  font-size: 2.5em;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+header h3, header h4 {
+  margin-top: 10px;
+  color: #ccccff;
+}
+
+header a {
+  color: #ff66cc;
+  text-decoration: underline;
+}
+
+/* === Search Section === */
+#search-section {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#search-input {
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 8px;
+  border: none;
+  width: 60%;
+  max-width: 500px;
+  background-color: #1a1a3d;
+  color: #ffffff;
+  box-shadow: 0 0 10px #00ffff;
+}
+
+/* === File Tree Section === */
+#file-tree-section {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+.tree-item {
+  margin: 8px 0;
+  padding: 10px;
+  background-color: #1a1a3d;
+  border-radius: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tree-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 12px #00ffff;
+}
+
+.tree-item a {
+  color: #00ffff;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.tree-item a:hover {
+  text-decoration: underline;
+}
+
+/* === Misc Elements (from original) === */
+blockquote {
+  margin: 18px;
+  padding: 18px;
+  background-color: #000064;
+}
+
+.date {
+  font-style: italic;
+  font-size: 120%;
+}
+
+#toc {
+  margin: 8px;
+  padding: 8px;
+  background-color: #000064;
+  width: fit-content;
+}
+
+.tocUl {
+  margin-left: 20px;
+  list-style-type: none;
+}
+
+table {
+  border-collapse: collapse;
+  background-color: #000000;
+}
+
+td, th {
+  border: 1px solid #ffffff;
+  text-align: left;
+  padding: 10px;
+}
