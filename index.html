@@ -5,6 +5,16 @@
   <title>Hacker114</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    /* Safe icon rendering: emojis set via CSS content to avoid stray characters in JS */
+    .icon { margin-right: 6px; font-size: 1rem; }
+    .icon.folder::before { content: "📁"; }
+    .icon.file::before { content: "📄"; }
+    .error { color: #e66; }
+    ul { list-style: none; padding-left: 1rem; }
+    li.tree-item { margin: 2px 0; }
+    a { text-decoration: none; }
+  </style>
 </head>
 <body>
   <header>
@@ -27,75 +37,115 @@
     const branch = "main";
     const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-    // Toggle: false = use raw.githubusercontent, true = use Pages auto-detect
+    // Pages auto-detect; set to false to force raw links
     const usePages = true;
 
     function makeURL(path) {
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
       if (!usePages) {
         return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
       }
+      // If site is served from /repo/, include it; otherwise use root
+      return pathname.includes(`/${repo}/`)
+        ? `${origin}/${repo}/${path}`
+        : `${origin}/${path}`;
+    }
 
-      // Detect if current URL already includes the repo name
-      const origin = window.location.origin;
-      const pathname = window.location.pathname;
+    function makeErrorNode(message) {
+      const li = document.createElement("li");
+      li.className = "error";
+      li.textContent = message;
+      return li;
+    }
 
-      if (pathname.includes(`/${repo}/`)) {
-        // Site is served from /repo/, include repo in URL
-        return `${origin}/${repo}/${path}`;
-      } else {
-        // Site is served from root, just append path
-        return `${origin}/${path}`;
-      }
+    // Build a safe folder node (no innerHTML)
+    function buildFolderNode(name) {
+      const li = document.createElement("li");
+      li.classList.add("tree-item");
+      li.setAttribute("data-name", name.toLowerCase());
+
+      const label = document.createElement("div");
+      const icon = document.createElement("span");
+      icon.className = "icon folder";
+      const strong = document.createElement("strong");
+      strong.textContent = name;
+
+      label.appendChild(icon);
+      label.appendChild(strong);
+      li.appendChild(label);
+      return li;
+    }
+
+    // Build a safe file node (no innerHTML)
+    function buildFileNode(name, path) {
+      const li = document.createElement("li");
+      li.classList.add("tree-item");
+      li.setAttribute("data-name", name.toLowerCase());
+
+      const link = document.createElement("a");
+      link.href = makeURL(path);
+      link.target = "_blank";
+
+      const icon = document.createElement("span");
+      icon.className = "icon file";
+      const text = document.createTextNode(name);
+
+      link.appendChild(icon);
+      link.appendChild(text);
+      li.appendChild(link);
+      return li;
     }
 
     async function fetchTree(path = "") {
       const url = apiBase + path;
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            // Helps some CDNs and proxies; also good practice for GitHub API
+            "Accept": "application/vnd.github.v3+json"
+          }
+        });
         if (!response.ok) {
           console.error("Fetch failed:", response.status, response.statusText, url);
-          const li = document.createElement("li");
-          li.textContent = `Error loading ${path}`;
-          return li;
+          return makeErrorNode(`Error loading ${path || "root"}`);
         }
+
         const items = await response.json();
-        if (!Array.isArray(items)) return "";
+        if (!Array.isArray(items)) {
+          return makeErrorNode("Unexpected response format");
+        }
 
         const ul = document.createElement("ul");
         for (const item of items) {
-          const li = document.createElement("li");
-          li.classList.add("tree-item");
-          li.setAttribute("data-name", item.name.toLowerCase());
-
           if (item.type === "dir") {
-            li.innerHTML = `<strong>📁 ${item.name}</strong>`;
+            const folderNode = buildFolderNode(item.name);
             const subTree = await fetchTree(item.path);
-            li.appendChild(subTree);
+            folderNode.appendChild(subTree instanceof HTMLElement ? subTree : makeErrorNode("Error loading folder"));
+            ul.appendChild(folderNode);
           } else if (item.type === "file") {
-            const rawURL = makeURL(item.path);
-            li.innerHTML = `<a href="${rawURL}" target="_blank">📄 ${item.name}</a>`;
+            ul.appendChild(buildFileNode(item.name, item.path));
           }
-          ul.appendChild(li);
         }
         return ul;
       } catch (err) {
         console.error("Exception fetching:", err);
-        const li = document.createElement("li");
-        li.textContent = `Error loading ${path}`;
-        return li;
+        return makeErrorNode(`Error loading ${path || "root"}`);
       }
     }
 
-    fetchTree().then(tree => {
+    (async function init() {
       const container = document.getElementById("file-tree");
+      container.textContent = "Loading Resources...";
+      const tree = await fetchTree();
       container.innerHTML = "";
       container.appendChild(tree);
-    });
+    })();
 
     document.getElementById("search-input").addEventListener("input", function () {
       const query = this.value.toLowerCase();
       document.querySelectorAll(".tree-item").forEach(item => {
-        const name = item.getAttribute("data-name");
+        const name = item.getAttribute("data-name") || "";
         item.style.display = name.includes(query) ? "" : "none";
       });
     });
