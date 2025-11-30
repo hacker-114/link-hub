@@ -6,14 +6,10 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
-    /* Safe icon rendering: emojis set via CSS content to avoid stray characters in JS */
-    .icon { margin-right: 6px; font-size: 1rem; }
-    .icon.folder::before { content: "📁"; }
-    .icon.file::before { content: "📄"; }
-    .error { color: #e66; }
     ul { list-style: none; padding-left: 1rem; }
     li.tree-item { margin: 2px 0; }
-    a { text-decoration: none; }
+    a { text-decoration: none; color: #0cf; }
+    .error { color: #e66; }
   </style>
 </head>
 <body>
@@ -37,7 +33,6 @@
     const branch = "main";
     const apiBase = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-    // Pages auto-detect; set to false to force raw links
     const usePages = true;
 
     function makeURL(path) {
@@ -46,7 +41,6 @@
       if (!usePages) {
         return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
       }
-      // If site is served from /repo/, include it; otherwise use root
       return pathname.includes(`/${repo}/`)
         ? `${origin}/${repo}/${path}`
         : `${origin}/${path}`;
@@ -59,40 +53,24 @@
       return li;
     }
 
-    // Build a safe folder node (no innerHTML)
     function buildFolderNode(name) {
       const li = document.createElement("li");
       li.classList.add("tree-item");
       li.setAttribute("data-name", name.toLowerCase());
-
-      const label = document.createElement("div");
-      const icon = document.createElement("span");
-      icon.className = "icon folder";
-      const strong = document.createElement("strong");
-      strong.textContent = name;
-
-      label.appendChild(icon);
-      label.appendChild(strong);
+      const label = document.createElement("strong");
+      label.textContent = `[Folder] ${name}`;
       li.appendChild(label);
       return li;
     }
 
-    // Build a safe file node (no innerHTML)
     function buildFileNode(name, path) {
       const li = document.createElement("li");
       li.classList.add("tree-item");
       li.setAttribute("data-name", name.toLowerCase());
-
       const link = document.createElement("a");
       link.href = makeURL(path);
       link.target = "_blank";
-
-      const icon = document.createElement("span");
-      icon.className = "icon file";
-      const text = document.createTextNode(name);
-
-      link.appendChild(icon);
-      link.appendChild(text);
+      link.textContent = `[File] ${name}`;
       li.appendChild(link);
       return li;
     }
@@ -101,10 +79,7 @@
       const url = apiBase + path;
       try {
         const response = await fetch(url, {
-          headers: {
-            // Helps some CDNs and proxies; also good practice for GitHub API
-            "Accept": "application/vnd.github.v3+json"
-          }
+          headers: { "Accept": "application/vnd.github.v3+json" }
         });
         if (!response.ok) {
           console.error("Fetch failed:", response.status, response.statusText, url);
