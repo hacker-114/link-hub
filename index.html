@@ -35,15 +35,19 @@
 
     const usePages = true;
 
+    // ✅ Fixed makeURL: works at root domain and subpath repos
     function makeURL(path) {
       const origin = window.location.origin;
-      const pathname = window.location.pathname;
+      let pathname = window.location.pathname.replace(/\/$/, ""); // strip trailing slash
       if (!usePages) {
         return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
       }
-      return pathname.includes(`/${repo}/`)
-        ? `${origin}/${repo}/${path}`
-        : `${origin}/${path}`;
+      // If serving from root domain, pathname is just "/"
+      if (pathname === "" || pathname === "/") {
+        return `${origin}/${path}`;
+      }
+      // Otherwise, append path relative to current repo/project path
+      return `${origin}${pathname}/${path}`;
     }
 
     function makeErrorNode(message) {
